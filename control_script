@@ -1,0 +1,70 @@
+  void inputhandler()
+    {
+        
+        foreach (Touch touch in Input.touches)
+        {
+            
+            float touch_position_x = touch.position.x;
+            float i = touch_position_x < Screen.width / 2 ? 1 : -1;
+            float fingerid_start = touch.fingerId;
+          
+
+            float fingerid_end;
+            bool swipe = false ;
+            if (touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Stationary  )
+            {
+                if (free)
+                {
+                    rb.AddForce(new Vector2(5 * i, 10) * thrust * Time.deltaTime);
+
+                    if (!touch_startpos.ContainsKey(touch.fingerId))
+                    {
+                        touch_startpos.Add(touch.fingerId, touch.position);
+                    }
+
+                    //startTouchPosition = touch.position;
+                    startTime = Time.time;
+
+
+                   
+                }
+                else
+                {
+                    
+                    //throw_player();
+                }
+              
+            }
+            if( touch.phase == TouchPhase.Ended && free )
+            {
+                /*print("dictionary count is : " + touch_startpos.Count);
+                foreach (var kvp in touch_startpos)
+                {
+                   
+                    print($"Key: {kvp.Key}, Value: {kvp.Value}");
+                }*/
+                if (touch_startpos.ContainsKey(touch.fingerId) && Input.touches.Length <=1)
+                {
+
+                    startTouchPosition = touch_startpos[touch.fingerId];
+                    Vector2 endTouchPosition = touch.position;
+                   // print("finger start :  " + fingerid_start + " /finger end :  " + touch.fingerId + "start pos/ " + startTouchPosition + "/ end pos : " + endTouchPosition);
+
+                    float swipeDuration = Time.time - startTime;
+                    float swipeDistance = Vector2.Distance(startTouchPosition, endTouchPosition);
+
+                    if (swipeDuration < dashDuration && swipeDistance > minSwipeDistance )
+                    {
+                        print("dashing ");
+                        Vector2 swipeDirection = endTouchPosition - startTouchPosition;
+                        swipeDirection.Normalize();
+                        Dash(swipeDirection);
+                    }
+                    touch_startpos.Remove(touch.fingerId);
+                }
+
+            }
+
+
+        }
+    }
